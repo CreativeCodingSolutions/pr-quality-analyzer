@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PR Quality Analyzer — Analyze Any GitHub Pull Request</title>
+  <meta name="description" content="Free PR Quality Analyzer — analyze any GitHub pull request for quality metrics. No sign-up needed. Check PR descriptions, labels, size, and more.">
+  <meta property="og:title" content="PR Quality Analyzer">
+  <meta property="og:description" content="Analyze any GitHub pull request for quality metrics. No sign-up needed.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --bg-input: #21262d;
+      --border: #30363d;
+      --border-focus: #58a6ff;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --text-dim: #484f58;
+      --accent: #58a6ff;
+      --accent-hover: #79c0ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --orange: #db6d28;
+      --radius: 8px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    }
+    html { font-size: 16px; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 0 20px; width: 100%; }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      background: var(--bg-card);
+    }
+    header .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    header .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+    header .logo svg { flex-shrink: 0; }
+    header nav { display: flex; gap: 16px; align-items: center; }
+    header nav a { font-size: 0.875rem; color: var(--text-muted); }
+    header nav a:hover { color: var(--text); }
+
+    .hero {
+      text-align: center;
+      padding: 60px 0 40px;
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .search-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .search-box label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .input-row input {
+      flex: 1;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      color: var(--text);
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .input-row input:focus { border-color: var(--border-focus); }
+    .input-row input::placeholder { color: var(--text-dim); }
+    .input-row button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .input-row button:hover { background: var(--accent-hover); }
+    .input-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .examples {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .examples span { color: var(--text-dim); }
+    .examples button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 3px 10px;
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+      transition: border-color 0.2s;
+    }
+    .examples button:hover { border-color: var(--accent); }
+
+    .error-box {
+      background: rgba(248,81,73,0.1);
+      border: 1px solid var(--red);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      color: var(--red);
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px 0;
+      display: none;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .results { display: none; }
+
+    .score-ring {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .ring {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      flex-shrink: 0;
+    }
+    .ring svg { transform: rotate(-90deg); }
+    .ring .score-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    .ring .score-label {
+      position: absolute;
+      top: 62px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .ring-details h2 {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    .ring-details .pr-link {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    }
+    .ring-details .pr-link:hover { text-decoration: underline; }
+    .ring-details .sub-metrics {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .ring-details .sub-metrics span { display: flex; align-items: center; gap: 4px; }
+
+    .checks-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .check-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .check-card .icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .check-card .content { flex: 1; min-width: 0; }
+    .check-card .content h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .check-card .content .status {
+      font-size: 0.8rem;
+    }
+    .check-card .content .detail {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+      word-break: break-all;
+    }
+
+    .detail-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+    }
+    .detail-section h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .detail-section h3 .count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    .file-list { list-style: none; }
+    .file-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(48,54,61,0.4);
+      font-size: 0.85rem;
+      font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+      gap: 12px;
+    }
+    .file-list li:last-child { border-bottom: none; }
+    .file-list .file-path { color: var(--text); word-break: break-all; min-width: 0; }
+    .file-list .file-stats {
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-size: 0.78rem;
+    }
+    .file-list .file-stats .add { color: var(--green); }
+    .file-list .file-stats .del { color: var(--red); }
+
+    .diff-stats { display: flex; gap: 20px; margin-bottom: 0; }
+    .diff-stats .stat { text-align: center; }
+    .diff-stats .stat .num {
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .diff-stats .stat .num.additions { color: var(--green); }
+    .diff-stats .stat .num.deletions { color: var(--red); }
+    .diff-stats .stat .num.changed { color: var(--text); }
+    .diff-stats .stat .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .info-box {
+      background: rgba(88,166,255,0.08);
+      border: 1px solid rgba(88,166,255,0.3);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .info-box .icon { font-size: 1.2rem; flex-shrink: 0; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      margin-top: auto;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--text); }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.5rem; }
+      .input-row { flex-direction: column; }
+      .input-row button { width: 100%; }
+      .checks-grid { grid-template-columns: 1fr; }
+      .score-ring { flex-direction: column; text-align: center; }
+      .ring-details .sub-metrics { justify-content: center; flex-wrap: wrap; }
+      .diff-stats { justify-content: center; }
+      header .container { flex-direction: column; gap: 8px; }
+      .examples button { font-size: 0.72rem; padding: 2px 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="7" stroke="#58a6ff" stroke-width="1.5" fill="none"/>
+        <path d="M5 8h6M8 5v6" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      PR Quality Analyzer
+    </div>
+    <nav>
+      <a href="#analyze">Analyze</a>
+      <a href="https://github.com/CreativeCodingSolutions/docucraft" target="_blank" rel="noopener">DocuCraft →</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero" id="analyze">
+    <h1>How healthy is your pull request?</h1>
+    <p>Paste any GitHub PR URL to get a quality score, actionable improvements, and detailed metrics. No sign-up, no limits.</p>
+  </section>
+
+  <div class="search-box">
+    <label for="pr-url">GitHub Pull Request URL</label>
+    <div class="input-row">
+      <input type="text" id="pr-url" placeholder="https://github.com/owner/repo/pull/123" autocomplete="off" spellcheck="false">
+      <button id="analyze-btn">Analyze</button>
+    </div>
+    <div class="examples">
+      <span>Try:</span>
+      <button class="example-btn" data-url="https://github.com/rails/rails/pull/50000">rails/rails#50000</button>
+      <button class="example-btn" data-url="https://github.com/reactjs/react.dev/pull/7000">reactjs/react.dev#7000</button>
+      <button class="example-btn" data-url="https://github.com/twbs/bootstrap/pull/40000">twbs/bootstrap#40000</button>
+    </div>
+  </div>
+
+  <div class="error-box" id="error-box"></div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Fetching PR data from GitHub...</p>
+  </div>
+
+  <div class="results" id="results">
+    <div class="score-ring" id="score-ring">
+      <div class="ring">
+        <svg width="96" height="96" viewBox="0 0 96 96">
+          <circle cx="48" cy="48" r="40" fill="none" stroke="#30363d" stroke-width="6"/>
+          <circle id="score-circle" cx="48" cy="48" r="40" fill="none" stroke="#58a6ff" stroke-width="6" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="0"/>
+        </svg>
+        <div class="score-text" id="score-text">-</div>
+        <div class="score-label">Quality</div>
+      </div>
+      <div class="ring-details">
+        <h2 id="pr-title">Pull Request Title</h2>
+        <a id="pr-link" class="pr-link" target="_blank" rel="noopener">owner/repo#123</a>
+        <div class="sub-metrics">
+          <span>📄 <span id="files-changed">-</span> files</span>
+          <span>💬 <span id="comment-count">-</span> comments</span>
+          <span>👤 <span id="pr-author">-</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="diff-stats" id="diff-stats">
+      <div class="stat"><div class="num changed" id="stat-files">-</div><div class="label">Files</div></div>
+      <div class="stat"><div class="num additions" id="stat-additions">-</div><div class="label">Additions</div></div>
+      <div class="stat"><div class="num deletions" id="stat-deletions">-</div><div class="label">Deletions</div></div>
+    </div>
+
+    <div class="checks-grid" id="checks-grid"></div>
+
+    <div class="detail-section" id="files-section">
+      <h3>📁 Changed Files <span class="count" id="files-count"></span></h3>
+      <ul class="file-list" id="file-list"></ul>
+    </div>
+
+    <div class="info-box">
+      <span class="icon">💡</span>
+      <div>
+        <strong>PR description too short?</strong> Try <a href="https://github.com/CreativeCodingSolutions/docucraft" target="_blank" rel="noopener">DocuCraft</a> — our free GitHub Action that auto-generates structured PR descriptions from your diff. One-line YAML setup, no API keys needed.
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <p>Built by <a href="https://github.com/CreativeCodingSolutions" target="_blank" rel="noopener">CreativeCodingSolutions</a> &middot; Free &amp; Open Source &middot; <a href="https://github.com/CreativeCodingSolutions/docucraft" target="_blank" rel="noopener">DocuCraft</a> &middot; <a href="https://github.com/CreativeCodingSolutions/pr-quality-analyzer" target="_blank" rel="noopener">Contribute</a></p>
+  </div>
+</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  const prUrlInput = document.getElementById('pr-url');
+  const analyzeBtn = document.getElementById('analyze-btn');
+  const errorBox = document.getElementById('error-box');
+  const loading = document.getElementById('loading');
+  const results = document.getElementById('results');
+
+  const scoreCircle = document.getElementById('score-circle');
+  const scoreText = document.getElementById('score-text');
+  const prTitle = document.getElementById('pr-title');
+  const prLink = document.getElementById('pr-link');
+  const filesChanged = document.getElementById('files-changed');
+  const commentCount = document.getElementById('comment-count');
+  const prAuthor = document.getElementById('pr-author');
+  const statFiles = document.getElementById('stat-files');
+  const statAdditions = document.getElementById('stat-additions');
+  const statDeletions = document.getElementById('stat-deletions');
+  const checksGrid = document.getElementById('checks-grid');
+  const filesSection = document.getElementById('files-section');
+  const fileList = document.getElementById('file-list');
+  const filesCount = document.getElementById('files-count');
+
+  function parsePRUrl(url) {
+    url = url.trim();
+    const m = url.match(/github\.com\/([^\/]+)\/([^\/]+)\/pull\/(\d+)/i);
+    if (!m) return null;
+    return { owner: m[1], repo: m[2], number: parseInt(m[3], 10) };
+  }
+
+  function showError(msg) {
+    errorBox.textContent = msg;
+    errorBox.style.display = 'block';
+    loading.style.display = 'none';
+    results.style.display = 'none';
+  }
+
+  function hideError() {
+    errorBox.style.display = 'none';
+  }
+
+  function setScore(score) {
+    const r = 40;
+    const circumference = 2 * Math.PI * r;
+    const offset = circumference * (1 - score / 100);
+    scoreCircle.style.strokeDasharray = circumference;
+    scoreCircle.style.strokeDashoffset = offset;
+    scoreText.textContent = Math.round(score);
+
+    if (score >= 80) {
+      scoreCircle.style.stroke = '#3fb950';
+    } else if (score >= 60) {
+      scoreCircle.style.stroke = '#d29922';
+    } else {
+      scoreCircle.style.stroke = '#f85149';
+    }
+  }
+
+  function analyzePR(data) {
+    let score = 100;
+    const checks = [];
+    const details = [];
+
+    if (!data.body || data.body.trim().length < 50) {
+      const len = data.body ? data.body.trim().length : 0;
+      score -= 25;
+      checks.push({ icon: '📝', label: 'Description', status: 'fail', text: `Too short (${len} chars, minimum 50)`, detail: len > 0 ? data.body.slice(0, 120) + '...' : '(empty)' });
+    } else {
+      const len = data.body.trim().length;
+      const bonus = len >= 200 ? 5 : 0;
+      score = Math.min(100, score + bonus);
+      checks.push({ icon: '📝', label: 'Description', status: 'pass', text: `Well written (${len} chars)`, detail: data.body.slice(0, 140) + (data.body.length > 140 ? '...' : '') });
+    }
+
+    if (!data.labels || data.labels.length === 0) {
+      score -= 15;
+      checks.push({ icon: '🏷️', label: 'Labels', status: 'fail', text: 'No labels applied', detail: 'Add labels to categorize this PR' });
+    } else {
+      score += 5;
+      checks.push({ icon: '🏷️', label: 'Labels', status: 'pass', text: `${data.labels.length} label(s) applied`, detail: data.labels.map(l => l.name).join(', ') });
+    }
+
+    const fileCount = data.changed_files || 0;
+    const additions = data.additions || 0;
+    const deletions = data.deletions || 0;
+
+    if (fileCount > 20) {
+      score -= 10;
+      checks.push({ icon: '📦', label: 'PR Size', status: 'warn', text: `Large PR (${fileCount} files)`, detail: 'Consider splitting into smaller PRs for easier review' });
+    } else if (fileCount === 0) {
+      score -= 10;
+      checks.push({ icon: '📦', label: 'PR Size', status: 'fail', text: 'No files changed', detail: 'This PR has no file changes' });
+    } else {
+      const bonus = fileCount <= 5 ? 5 : 0;
+      score = Math.min(100, score + bonus);
+      checks.push({ icon: '📦', label: 'PR Size', status: 'pass', text: `${fileCount} file(s)`, detail: `${additions} additions, ${deletions} deletions` });
+    }
+
+    if (additions + deletions > 2000) {
+      score -= 10;
+    } else if (additions + deletions < 10 && fileCount > 0) {
+      score -= 5;
+    } else {
+      score += 3;
+    }
+
+    if (data.title && data.title.length < 10) {
+      score -= 10;
+      checks.push({ icon: '📌', label: 'Title', status: 'fail', text: `Title too short (${data.title.length} chars)`, detail: data.title });
+    } else if (data.title) {
+      score += 3;
+      checks.push({ icon: '📌', label: 'Title', status: 'pass', text: `Clear title (${data.title.length} chars)`, detail: data.title });
+    }
+
+    const hasMilestone = !!data.milestone;
+    if (hasMilestone) {
+      score += 5;
+    }
+
+    if (data.draft) {
+      score -= 5;
+      checks.push({ icon: '🚧', label: 'Status', status: 'warn', text: 'Draft PR', detail: 'Convert to ready when complete' });
+    } else {
+      checks.push({ icon: '✅', label: 'Status', status: 'pass', text: 'Ready for review', detail: 'Not a draft' });
+    }
+
+    const prUrl = `https://github.com/${data.owner}/${data.repo}/pull/${data.number}`;
+    checks.push({ icon: '🔗', label: 'Linked Issue', status: data.body && data.body.match(/(?:close|fix|resolve|#)\s*\d+/i) ? 'pass' : 'info', text: data.body && data.body.match(/(?:close|fix|resolve|#)\s*\d+/i) ? 'Issue referenced' : 'No issue reference', detail: 'Tip: reference issues with "Closes #123"' });
+
+    score = Math.max(0, Math.min(100, Math.round(score)));
+
+    checksGrid.innerHTML = checks.map(c => `
+      <div class="check-card">
+        <div class="icon">${c.icon}</div>
+        <div class="content">
+          <h3>${c.label}</h3>
+          <div class="status" style="color: ${c.status === 'pass' ? 'var(--green)' : c.status === 'warn' ? 'var(--yellow)' : c.status === 'fail' ? 'var(--red)' : 'var(--accent)'}">${c.status === 'pass' ? '✓' : c.status === 'info' ? 'ℹ' : '✗'} ${c.text}</div>
+          <div class="detail">${c.detail}</div>
+        </div>
+      </div>
+    `).join('');
+
+    setScore(score);
+    prTitle.textContent = data.title || '(no title)';
+    prLink.textContent = `${data.owner}/${data.repo}#${data.number}`;
+    prLink.href = prUrl;
+    filesChanged.textContent = fileCount;
+    commentCount.textContent = data.comments ?? 0;
+    prAuthor.textContent = data.user?.login || 'unknown';
+
+    statFiles.textContent = fileCount;
+    statAdditions.textContent = additions;
+    statDeletions.textContent = deletions;
+
+    if (data.files && data.files.length > 0) {
+      filesSection.style.display = 'block';
+      filesCount.textContent = `(${data.files.length})`;
+      fileList.innerHTML = data.files.map(f => {
+        const add = f.additions || 0;
+        const del = f.deletions || 0;
+        return `<li>
+          <span class="file-path">${f.filename}</span>
+          <span class="file-stats">${add > 0 ? `<span class="add">+${add}</span>` : ''} ${del > 0 ? `<span class="del">-${del}</span>` : ''}${add === 0 && del === 0 ? '<span class="add">+0</span>' : ''}</span>
+        </li>`;
+      }).join('');
+    } else {
+      filesSection.style.display = 'none';
+    }
+  }
+
+  async function fetchPR(owner, repo, number) {
+    const token = localStorage.getItem('gh_token');
+    const headers = { 'Accept': 'application/vnd.github+json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const prRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/pulls/${number}`, { headers });
+    if (!prRes.ok) {
+      if (prRes.status === 403) throw new Error('Rate limited by GitHub API. Wait a moment and try again, or add a GitHub token.');
+      if (prRes.status === 404) throw new Error('PR not found. Check the URL.');
+      throw new Error(`GitHub API error: ${prRes.status}`);
+    }
+    const prData = await prRes.json();
+
+    let labels = [];
+    try {
+      const issueRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues/${number}`, { headers });
+      if (issueRes.ok) {
+        const issueData = await issueRes.json();
+        labels = issueData.labels || [];
+      }
+    } catch (_) {}
+
+    let files = [];
+    try {
+      const filesRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/pulls/${number}/files?per_page=100`, { headers });
+      if (filesRes.ok) {
+        files = await filesRes.json();
+      }
+    } catch (_) {}
+
+    return {
+      owner, repo, number,
+      title: prData.title || '',
+      body: prData.body || '',
+      state: prData.state,
+      draft: prData.draft || false,
+      user: prData.user || { login: 'unknown' },
+      labels: labels,
+      milestone: prData.milestone,
+      comments: prData.comments || 0,
+      changed_files: prData.changed_files || 0,
+      additions: prData.additions || 0,
+      deletions: prData.deletions || 0,
+      files: files,
+      created_at: prData.created_at,
+      merged: !!prData.merged
+    };
+  }
+
+  async function handleAnalyze() {
+    const url = prUrlInput.value.trim();
+    if (!url) {
+      showError('Enter a GitHub pull request URL');
+      prUrlInput.focus();
+      return;
+    }
+
+    const parsed = parsePRUrl(url);
+    if (!parsed) {
+      showError('Invalid GitHub PR URL. Format: https://github.com/owner/repo/pull/123');
+      return;
+    }
+
+    hideError();
+    loading.style.display = 'block';
+    results.style.display = 'none';
+    analyzeBtn.disabled = true;
+
+    try {
+      const data = await fetchPR(parsed.owner, parsed.repo, parsed.number);
+      loading.style.display = 'none';
+      results.style.display = 'block';
+      analyzePR(data);
+      prUrlInput.value = url;
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      analyzeBtn.disabled = false;
+    }
+  }
+
+  analyzeBtn.addEventListener('click', handleAnalyze);
+
+  prUrlInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleAnalyze();
+  });
+
+  document.querySelectorAll('.example-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      prUrlInput.value = btn.dataset.url;
+      handleAnalyze();
+    });
+  });
+
+  prUrlInput.focus();
+})();
+</script>
+
+</body>
+</html>
