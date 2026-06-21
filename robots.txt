@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://creativecodingsolutions.github.io/pr-quality-analyzer/sitemap.xml
