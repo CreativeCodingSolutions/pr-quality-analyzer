@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PR Quality Kit — Free Templates, Badges & Configs for Better PRs</title>
+  <meta name="description" content="Free PR quality kit for open-source maintainers. Copy-paste PR templates, CONTRIBUTING guidelines, GitHub Action configs, and README badges to enforce PR quality standards in your repo.">
+  <meta property="og:title" content="PR Quality Kit — Free Templates for Better Pull Requests">
+  <meta property="og:description" content="Free templates, badges, and GitHub Action configs to enforce PR quality in any repo. No sign-up needed.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://creativecodingsolutions.github.io/pr-quality-analyzer/quality-kit/">
+  <meta property="og:image" content="https://img.shields.io/badge/PR%20Quality%20Kit-Free%20Templates%20%26%20Badges-58a6ff?style=for-the-badge">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PR Quality Kit — Free Templates for Better Pull Requests">
+  <meta name="twitter:description" content="Free templates, badges, and GitHub Action configs to enforce PR quality in any repo.">
+  <link rel="canonical" href="https://creativecodingsolutions.github.io/pr-quality-analyzer/quality-kit/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d1117;
+      --bg-card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-hover: #79c0ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --radius: 8px;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+      --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+    }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+    .container { max-width: 860px; margin: 0 auto; padding: 0 20px; width: 100%; }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      background: var(--bg-card);
+    }
+    header .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    header .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+    header nav { display: flex; gap: 16px; align-items: center; }
+    header nav a { font-size: 0.875rem; color: var(--text-muted); }
+    header nav a:hover { color: var(--text); text-decoration: none; }
+
+    .page-header {
+      padding: 48px 0 24px;
+    }
+    .page-header h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    .page-header p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 600px;
+    }
+
+    .page-body { padding-bottom: 48px; }
+
+    .kit-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    .kit-section h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .kit-section .desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .copy-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .copy-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .copy-btn {
+      background: var(--bg-input, #21262d);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 12px;
+      font-size: 0.78rem;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+    .copy-block pre {
+      padding: 16px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--text);
+      margin: 0;
+    }
+    .copy-block code { font-family: inherit; }
+
+    .inline-alert {
+      background: rgba(88,166,255,0.08);
+      border: 1px solid rgba(88,166,255,0.3);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .inline-alert strong { color: var(--text); }
+
+    .step-list { list-style: none; counter-reset: step; }
+    .step-list li {
+      counter-increment: step;
+      padding: 8px 0 8px 36px;
+      position: relative;
+      font-size: 0.9rem;
+    }
+    .step-list li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 24px;
+      height: 24px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--green);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; }
+
+    .toc { margin-bottom: 24px; }
+    .toc a {
+      display: inline-block;
+      padding: 4px 0;
+      font-size: 0.9rem;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0;
+      margin-top: auto;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    footer a { color: var(--text-muted); }
+    footer a:hover { color: var(--text); }
+
+    @media (max-width: 640px) {
+      .page-header h1 { font-size: 1.4rem; }
+      header .container { flex-direction: column; gap: 8px; }
+      .kit-section { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="logo">
+      <svg width="28" height="28" viewBox="0 0 16 16" fill="none">
+        <circle cx="8" cy="8" r="7" stroke="#58a6ff" stroke-width="1.5" fill="none"/>
+        <path d="M5 8h6M8 5v6" stroke="#58a6ff" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <a href="/pr-quality-analyzer/" style="color:inherit;text-decoration:none">PR Quality Analyzer</a>
+    </div>
+    <nav>
+      <a href="/pr-quality-analyzer/">Analyze</a>
+      <a href="/pr-quality-analyzer/blog/">Research</a>
+      <a href="https://github.com/CreativeCodingSolutions/pr-quality-gate" target="_blank" rel="noopener">GitHub Action</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-header">
+    <h1>PR Quality Kit</h1>
+    <p>Copy-paste templates, badges, and configs to enforce PR quality standards in your open-source repo. Free, zero setup.</p>
+  </div>
+
+  <div class="toc">
+    <a href="#template">PR Template</a> &middot;
+    <a href="#contributing">CONTRIBUTING Guide</a> &middot;
+    <a href="#action">GitHub Action</a> &middot;
+    <a href="#badge">README Badge</a>
+  </div>
+
+  <div class="page-body">
+
+    <div class="kit-section" id="template">
+      <h2>Pull Request Template</h2>
+      <p class="desc">Copy this <code>.github/PULL_REQUEST_TEMPLATE.md</code> into your repo. It enforces description quality, issue linking, and includes a badge link to the PR Quality Analyzer.</p>
+
+      <div class="copy-block">
+        <div class="copy-block-header">
+          <span><code>.github/PULL_REQUEST_TEMPLATE.md</code></span>
+          <button class="copy-btn" data-copy="pr-template-copy">Copy</button>
+        </div>
+        <pre id="pr-template-copy"><code>---
+name: Pull Request
+about: Submit a pull request to improve this project
+labels: needs review
+---
+
+## Description
+<!-- Describe the change and why it's needed. Be specific. -->
+
+## Related Issues
+<!-- Link related issues: "Closes #123", "Fixes #456", "Related to #789" -->
+
+## Type of Change
+- [ ] Bug fix (non-breaking change that fixes an issue)
+- [ ] New feature (non-breaking change that adds functionality)
+- [ ] Breaking change (fix or feature that breaks existing behavior)
+- [ ] Documentation update
+- [ ] Refactoring / dependency update
+- [ ] CI / build configuration
+
+## Testing
+<!-- Describe how you tested this change. -->
+- [ ] Tests added / updated
+- [ ] Manual testing completed
+
+## Checklist
+- [ ] My PR has a descriptive title (not just "fix" or "update")
+- [ ] My PR description is at least 50 characters
+- [ ] I've linked to the relevant issue(s)
+- [ ] My changes are scoped to a single logical change
+- [ ] I've added or updated tests
+- [ ] I've run linting and tests locally
+
+---
+[![PR Quality](https://img.shields.io/badge/PR%20Quality-Check%20Your%20Score-brightgreen)](https://creativecodingsolutions.github.io/pr-quality-analyzer/?pr=REPLACE_WITH_PR_URL)</code></pre>
+      </div>
+
+      <div class="inline-alert">
+        <strong>Pro tip:</strong> Enable <strong>"Require pull request descriptions"</strong> in your repo settings (Settings → General → Pull Requests) to make the template mandatory. Pair with our <a href="https://github.com/CreativeCodingSolutions/pr-quality-gate">PR Quality Gate</a> GitHub Action for automated enforcement.
+      </div>
+    </div>
+
+    <div class="kit-section" id="contributing">
+      <h2>CONTRIBUTING.md Section</h2>
+      <p class="desc">Add this section to your <code>CONTRIBUTING.md</code> to communicate PR quality expectations to contributors.</p>
+
+      <div class="copy-block">
+        <div class="copy-block-header">
+          <span><code>CONTRIBUTING.md — PR Quality Standards section</code></span>
+          <button class="copy-btn" data-copy="contributing-copy">Copy</button>
+        </div>
+        <pre id="contributing-copy"><code>## Pull Request Quality Standards
+
+We care about code review quality. Before submitting a PR:
+
+1. **Write a descriptive title** — explain what the change does, not just "fix" or "update"
+2. **Fill out the PR description** — at least 50 characters explaining the what and why
+3. **Link to related issues** — use "Closes #123" or "Fixes #456" to auto-close issues on merge
+4. **Keep PRs focused** — one logical change per PR. Large PRs take longer to review
+5. **Add labels** — categorize your PR (bug, feature, docs, etc.)
+
+Quick check: paste your PR URL into the <a href="https://creativecodingsolutions.github.io/pr-quality-analyzer/">PR Quality Analyzer</a> to get an instant quality score before requesting review.</code></pre>
+      </div>
+    </div>
+
+    <div class="kit-section" id="action">
+      <h2>GitHub Action Configuration</h2>
+      <p class="desc">Add PR Quality Gate to your CI pipeline. It checks description length, labels, and linked issues on every PR. Copy this into <code>.github/workflows/pr-quality.yml</code>.</p>
+
+      <div class="copy-block">
+        <div class="copy-block-header">
+          <span><code>.github/workflows/pr-quality.yml</code></span>
+          <button class="copy-btn" data-copy="action-copy">Copy</button>
+        </div>
+        <pre id="action-copy"><code>name: PR Quality Gate
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: CreativeCodingSolutions/pr-quality-gate@v1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          min-description-length: "50"
+          require-labels: "true"
+          require-linked-issue: "false"
+          mode: warn
+          comment-on-pr: true
+          custom-message: "Thanks for contributing! Please review the quality checks above."</code></pre>
+      </div>
+
+      <div class="inline-alert">
+        <strong>Tip:</strong> Start in <code>warn</code> mode so it doesn't block contributions. Switch to <code>fail</code> mode once your team is used to the standards. See <a href="https://github.com/CreativeCodingSolutions/pr-quality-gate">full docs →</a>
+      </div>
+    </div>
+
+    <div class="kit-section" id="badge">
+      <h2>README Badge</h2>
+      <p class="desc">Show visitors that your repo cares about PR quality. Add this badge to your <code>README.md</code>.</p>
+
+      <div class="copy-block" style="margin-bottom: 12px;">
+        <div class="copy-block-header">
+          <span>Badge Markdown</span>
+          <button class="copy-btn" data-copy="badge-copy">Copy</button>
+        </div>
+        <pre id="badge-copy"><code>[![PR Quality](https://img.shields.io/badge/PR%20Quality%20Gate-Enforced-brightgreen)](https://github.com/CreativeCodingSolutions/pr-quality-gate)
+
+[![PR Quality Analyzer](https://img.shields.io/badge/PR%20Quality%20Analyzer-Score%20Any%20PR%20(A--F)-58a6ff)](https://creativecodingsolutions.github.io/pr-quality-analyzer/)</code></pre>
+      </div>
+
+      <div class="inline-alert">
+        <strong>Live badge:</strong> When you analyze a specific PR on the <a href="/pr-quality-analyzer/">PR Quality Analyzer</a>, it generates a custom badge with that PR's score. Use that to show off your team's PR quality.
+      </div>
+    </div>
+
+    <div class="kit-section">
+      <h2>Quick Setup Checklist</h2>
+      <ol class="step-list">
+        <li>Add <code>.github/PULL_REQUEST_TEMPLATE.md</code> to your repo</li>
+        <li>Add the CONTRIBUTING.md section above</li>
+        <li>Add PR Quality Gate as a GitHub Action workflow</li>
+        <li>Add a README badge showing you care about PR quality</li>
+        <li>Enable "Require pull request descriptions" in repo settings</li>
+        <li>Encourage contributors to run the <a href="/pr-quality-analyzer/">PR Quality Analyzer</a> before submitting</li>
+      </ol>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <p><a href="/pr-quality-analyzer/">PR Quality Analyzer</a> &middot; Free &amp; Open Source &middot; <a href="https://github.com/CreativeCodingSolutions/pr-quality-analyzer">GitHub</a> &middot; <a href="https://github.com/CreativeCodingSolutions/pr-quality-gate" target="_blank" rel="noopener">PR Quality Gate Action</a></p>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  const toast = document.getElementById('toast');
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  document.querySelectorAll('[data-copy]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.copy;
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      let text;
+      if (el.tagName === 'PRE' || el.tagName === 'CODE') {
+        text = el.textContent;
+      } else {
+        text = el.value || el.textContent;
+      }
+      navigator.clipboard.writeText(text.trim()).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        showToast('Copied to clipboard!');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      }).catch(() => {});
+    });
+  });
+})();
+</script>
+</body>
+</html>
